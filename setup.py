@@ -2,12 +2,13 @@
 from distutils.core import setup
 setup(
     name = "sync_subtitle",
-    packages = ["sync_subtitle"],
-    version = "1.0",
-    description = "Subtitle (SRT) synchronizer",
+    version = "1.0.0",
+    py_modules = ['sync_subtitle'],
     author = "Prasannajit Acharya - Kanhu",
     author_email = "prasannajit.acharya.kanhu@gmail.com",
+    description = "Subtitle (SRT) synchronizer",
     keywords = ["subtitle", "srt", "synchronizer"],
+    url = "https://github.com/paKanhu/sync_subtitle",
     license = "GNU General Public License v3 (GPLv3)",
     classifiers = [
         "Programming Language :: Python",
