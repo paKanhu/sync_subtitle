@@ -10,3 +10,6 @@ Synchronizes a .srt subtitle file.
       starting time of the subtitle. It generally occurs for first subtitle.
 
 This version requires Python 3 or later.
+
+https://pypi.python.org/pypi/sync_subtitle
+https://github.com/paKanhu/sync_subtitle
