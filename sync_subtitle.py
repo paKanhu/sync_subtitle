@@ -45,152 +45,210 @@ import re
 
 __all__ = ['sync', 'sync_after_time', 'sync_before_time', 'sync_between_times']
 
-def sync(input_srt_file, sync_time_in_ms , delay = True, output_srt_file = ''):
+def sync(input_file, sync_time_in_ms, delay=True, output_file=''):
     """
-		input_srt_file      -- Path to the input SRT file.
-		sync_time_in_ms     -- Time (in millisecond) for which subtitle will be
-		                       delayed, or hastened.
-		delay               -- True for delaying the subtitle, False for
-		                       hastening it.
-		output_srt_file     -- With default value input file will be replaced.
-		                       Change it to get output in different file.
+        input_file          -- Path to the input SRT file.
+        sync_time_in_ms     -- Time (in millisecond) for which subtitle will be
+                               delayed, or hastened.
+        delay               -- True for delaying the subtitle, False for
+                               hastening it.
+        output_file         -- With default value input file will be replaced.
+                               Change it to get output in different file.
     """
-    if check_srt_extension(input_srt_file):
-        if output_srt_file == '':
-            output_srt_file = input_srt_file
+    if check_srt_extension(input_file):
+        if output_file == '':
+            output_file = input_file
         try:
-            with open(input_srt_file) as input_file:
-                with open(output_srt_file + '.tmp', 'w') as output_file:
-                    for each_line in input_file:
-                        (start_time, end_time) = get_start_and_end_times(each_line)
+            with open(input_file) as inputfile:
+                with open(output_file + '.tmp', 'w') as outputfile:
+                    for each_line in inputfile:
+
+                        (start_time, end_time) = \
+                            get_start_and_end_times(each_line)
+
                         if (start_time != None) or (end_time != None):
-                            (start_time, end_time) = get_sync_times(sync_time_in_ms, start_time, end_time, delay)
-                            print(ms_to_str(start_time) + ' --> ' + ms_to_str(end_time), file=output_file)
+
+                            (start_time, end_time) = get_sync_times(\
+                                sync_time_in_ms, start_time, end_time, delay)
+
+                            print(ms_to_str(start_time) + ' --> ' + \
+                                ms_to_str(end_time), file=outputfile)
+
                         else:
-                            print(each_line, end='', file=output_file)
-            save_srt_file(input_srt_file, output_srt_file)
+                            print(each_line, end='', file=outputfile)
+            save_srt_file(input_file, output_file)
         except IOError as ioerr:
             print('File error: ' + str(ioerr))
 
 
 
-def sync_after_time(sync_after_time_str, input_srt_file, sync_time_in_ms , delay = True, output_srt_file = ''):
+def sync_after_time(sync_after_time_str, input_file, sync_time_in_ms, \
+    delay=True, output_file=''):
     """
-		sync_after_time_str -- Time after which synchronization will start.
-		                       It is a string in the format of hh:mm:ss,ms
-		                       (01:23:45,678).
-		input_srt_file      -- Path to the input SRT file.
-		sync_time_in_ms     -- Time (in millisecond) for which subtitle will be
-		                       delayed, or hastened.
-		delay               -- True for delaying the subtitle, False for
-		                       hastening it.
-		output_srt_file     -- With default value input file will be replaced.
-		                       Change it to get output in different file.
+        sync_after_time_str -- Time after which synchronization will start.
+                               It is a string in the format of hh:mm:ss,ms
+                               (01:23:45,678).
+        input_file          -- Path to the input SRT file.
+        sync_time_in_ms     -- Time (in millisecond) for which subtitle will be
+                               delayed, or hastened.
+        delay               -- True for delaying the subtitle, False for
+                               hastening it.
+        output_file         -- With default value input file will be replaced.
+                               Change it to get output in different file.
     """
-    if check_srt_extension(input_srt_file):
-        if output_srt_file == '':
-            output_srt_file = input_srt_file
+    if check_srt_extension(input_file):
+        if output_file == '':
+            output_file = input_file
         if check_time_str_format(sync_after_time_str):
             try:
-                with open(input_srt_file) as input_file:
-                    with open(output_srt_file + '.tmp', 'w') as output_file:
-                        for each_line in input_file:
-                            sync_after_time = str_to_ms(sync_after_time_str)
-                            (start_time, end_time) = get_start_and_end_times(each_line)
+                with open(input_file) as inputfile:
+                    with open(output_file + '.tmp', 'w') as outputfile:
+                        for each_line in inputfile:
+
+                            sync_after_time_in_ms = \
+                                str_to_ms(sync_after_time_str)
+
+                            (start_time, end_time) = \
+                                get_start_and_end_times(each_line)
+
                             if (start_time != None) or (end_time != None):
-                                if sync_after_time < start_time:
-                                    (start_time, end_time) = get_sync_times(sync_time_in_ms, start_time, end_time, delay)
-                                    print(ms_to_str(start_time) + ' --> ' + ms_to_str(end_time), file=output_file)
+                                if sync_after_time_in_ms < start_time:
+
+                                    (start_time, end_time) = \
+                                        get_sync_times(sync_time_in_ms, \
+                                            start_time, end_time, delay)
+
+                                    print(ms_to_str(start_time) + ' --> ' + \
+                                        ms_to_str(end_time), file=outputfile)
+
                                 else:
-                                    print(each_line, end='', file=output_file)
+                                    print(each_line, end='', file=outputfile)
                             else:
-                                print(each_line, end='', file=output_file)
-                save_srt_file(input_srt_file, output_srt_file)
+                                print(each_line, end='', file=outputfile)
+                save_srt_file(input_file, output_file)
             except IOError as ioerr:
                 print('File error: ' + str(ioerr))
 
 
 
-def sync_before_time(sync_before_time_str, input_srt_file, sync_time_in_ms , delay = True, output_srt_file = ''):
+def sync_before_time(sync_before_time_str, input_file, sync_time_in_ms, \
+    delay=True, output_file=''):
     """
-		sync_before_time_str -- Time before which synchronization will be done.
-		                        It is a string in the format of hh:mm:ss,ms
-		                        (01:23:45,678).
-		input_srt_file       -- Path to the input SRT file.
-		sync_time_in_ms      -- Time (in millisecond) for which subtitle will
-		                        be delayed, or hastened.
-		delay                -- True for delaying the subtitle, False for
-		                        hastening it.
-		output_srt_file      -- With default value input file will be replaced.
-		                        Change it to get output in different file.
+        sync_before_time_str -- Time before which synchronization will be done.
+                                It is a string in the format of hh:mm:ss,ms
+                                (01:23:45,678).
+        input_file           -- Path to the input SRT file.
+        sync_time_in_ms      -- Time (in millisecond) for which subtitle will
+                                be delayed, or hastened.
+        delay                -- True for delaying the subtitle, False for
+                                hastening it.
+        output_file          -- With default value input file will be replaced.
+                                Change it to get output in different file.
     """
-    if check_srt_extension(input_srt_file):
-        if output_srt_file == '':
-            output_srt_file = input_srt_file
+    if check_srt_extension(input_file):
+        if output_file == '':
+            output_file = input_file
         if check_time_str_format(sync_before_time_str):
             try:
-                with open(input_srt_file) as input_file:
-                    with open(output_srt_file + '.tmp', 'w') as output_file:
-                        for each_line in input_file:
-                            sync_before_time = str_to_ms(sync_before_time_str)
-                            (start_time, end_time) = get_start_and_end_times(each_line)
+                with open(input_file) as inputfile:
+                    with open(output_file + '.tmp', 'w') as outputfile:
+                        for each_line in inputfile:
+
+                            sync_before_time_in_ms = \
+                                str_to_ms(sync_before_time_str)
+
+                            (start_time, end_time) = \
+                                get_start_and_end_times(each_line)
+
                             if (start_time != None) or (end_time != None):
-                                if sync_before_time > end_time:
-                                    (start_time, end_time) = get_sync_times(sync_time_in_ms, start_time, end_time, delay)
-                                    print(ms_to_str(start_time) + ' --> ' + ms_to_str(end_time), file=output_file)
+                                if sync_before_time_in_ms > end_time:
+
+                                    (start_time, end_time) = \
+                                        get_sync_times(sync_time_in_ms, \
+                                            start_time, end_time, delay)
+
+                                    print(ms_to_str(start_time) + ' --> ' + \
+                                        ms_to_str(end_time), file=outputfile)
+
                                 else:
-                                    print(each_line, end='', file=output_file)
+                                    print(each_line, end='', file=outputfile)
                             else:
-                                print(each_line, end='', file=output_file)
-                save_srt_file(input_srt_file, output_srt_file)
+                                print(each_line, end='', file=outputfile)
+                save_srt_file(input_file, output_file)
             except IOError as ioerr:
                 print('File error: ' + str(ioerr))
 
 
 
-def sync_between_times(sync_after_time_str, sync_before_time_str, input_srt_file, sync_time_in_ms , delay = True, output_srt_file = ''):
+def sync_between_times(sync_after_time_str, sync_before_time_str, input_file, \
+    sync_time_in_ms, delay=True, output_file=''):
     """
-		sync_after_time_str  -- Time after which synchronization will start.
-		                        It is a string in the format of hh:mm:ss,ms
-		                        (01:23:45,678).
-		sync_before_time_str -- Time before which synchronization will be done.
-		                        It is a string in the format of hh:mm:ss,ms
-		                        (01:23:45,678).
-		input_srt_file       -- Path to the input SRT file.
-		sync_time_in_ms      -- Time (in millisecond) for which subtitle will
-		                        be delayed, or hastened.
-		delay                -- True for delaying the subtitle, False for
-		                        hastening it.
-		output_srt_file      -- With default value input file will be replaced.
-		                        Change it to get output in different file.
+        sync_after_time_str  -- Time after which synchronization will start.
+                                It is a string in the format of hh:mm:ss,ms
+                                (01:23:45,678).
+        sync_before_time_str -- Time before which synchronization will be done.
+                                It is a string in the format of hh:mm:ss,ms
+                                (01:23:45,678).
+        input_file           -- Path to the input SRT file.
+        sync_time_in_ms      -- Time (in millisecond) for which subtitle will
+                                be delayed, or hastened.
+        delay                -- True for delaying the subtitle, False for
+                                hastening it.
+        output_file          -- With default value input file will be replaced.
+                                Change it to get output in different file.
     """
-    if check_srt_extension(input_srt_file):
-        if output_srt_file == '':
-            output_srt_file = input_srt_file
-        if check_time_str_format(sync_after_time_str) and check_time_str_format(sync_before_time_str):
+    if check_srt_extension(input_file):
+        if output_file == '':
+            output_file = input_file
+
+        if check_time_str_format(sync_after_time_str) and \
+            check_time_str_format(sync_before_time_str):
+
             try:
-                with open(input_srt_file) as input_file:
-                    with open(output_srt_file + '.tmp', 'w') as output_file:
-                        for each_line in input_file:
-                            sync_after_time = str_to_ms(sync_after_time_str)
-                            sync_before_time = str_to_ms(sync_before_time_str)
-                            (start_time, end_time) = get_start_and_end_times(each_line)
+                with open(input_file) as inputfile:
+                    with open(output_file + '.tmp', 'w') as outputfile:
+                        for each_line in inputfile:
+
+                            sync_after_time_in_ms = \
+                                str_to_ms(sync_after_time_str)
+
+                            sync_before_time_in_ms = \
+                                str_to_ms(sync_before_time_str)
+
+                            (start_time, end_time) = \
+                                get_start_and_end_times(each_line)
+
                             if (start_time != None) or (end_time != None):
-                                if (sync_after_time < start_time) and (sync_before_time > end_time):
-                                    (start_time, end_time) = get_sync_times(sync_time_in_ms, start_time, end_time, delay)
-                                    print(ms_to_str(start_time) + ' --> ' + ms_to_str(end_time), file=output_file)
+
+                                if (sync_after_time_in_ms < start_time) and \
+                                    (sync_before_time_in_ms > end_time):
+
+                                    (start_time, end_time) = \
+                                        get_sync_times(sync_time_in_ms, \
+                                            start_time, end_time, delay)
+
+                                    print(ms_to_str(start_time) + ' --> ' + \
+                                        ms_to_str(end_time), file=outputfile)
+
                                 else:
-                                    print(each_line, end='', file=output_file)
+                                    print(each_line, end='', file=outputfile)
                             else:
-                                print(each_line, end='', file=output_file)
-                save_srt_file(input_srt_file, output_srt_file)
+                                print(each_line, end='', file=outputfile)
+                save_srt_file(input_file, output_file)
             except IOError as ioerr:
                 print('File error: ' + str(ioerr))
 
 
 
 def get_start_and_end_times(input_line):
-    is_time_str = re.match(r'\d\d:\d\d:\d\d,\d\d\d --> \d\d:\d\d:\d\d,\d\d\d', input_line)
+    """
+        input_line -- String to be check against time pattern to get start and
+                      end time
+    """
+    is_time_str = \
+        re.match(r'\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}', \
+            input_line)
+
     if is_time_str != None:
         (start_time_str, end_time_str) = input_line.split(' --> ')
         start_time = str_to_ms(start_time_str)
@@ -200,7 +258,17 @@ def get_start_and_end_times(input_line):
         end_time = None
     return (start_time, end_time)
 
+
+
 def get_sync_times(sync_time_in_ms, start_time, end_time, delay):
+    """
+        sync_time_in_ms -- Time (in millisecond) for which subtitle will
+                           be delayed, or hastened.
+        start_time      -- Subtitle line start time (in millisecond)
+        end_time        -- Subtitle line end time (in millisecond)
+        delay           -- True for delaying the subtitle, False for
+                           hastening it.
+    """
     if delay:
         if start_time > sync_time_in_ms:
             start_time -= sync_time_in_ms
@@ -211,41 +279,72 @@ def get_sync_times(sync_time_in_ms, start_time, end_time, delay):
         end_time += sync_time_in_ms
     return (start_time, end_time)
 
-def save_srt_file(input_srt_file, output_srt_file):
-    if input_srt_file == output_srt_file:
+
+
+def save_srt_file(input_file, output_file):
+    """
+        input_file  -- Input subtitle file
+        output_file -- Output subtitle file
+    """
+    if input_file == output_file:
         try:
-            os.remove(input_srt_file)
+            os.remove(input_file)
         except NotImplementedError as nierr:
             print('File modification error: ' + str(nierr))
     try:
-        os.rename(output_srt_file + '.tmp', output_srt_file)
+        os.rename(output_file + '.tmp', output_file)
     except NotImplementedError as nierr:
         print('File modification error: ' + str(nierr))
 
+
+
 def str_to_ms(time_str):
+    """
+        time_str -- Time string in (hh:mm:ss,ms) format
+    """
     (hhmmss_str, ms_str) = time_str.split(',')
     (hh_str, mm_str, ss_str) = hhmmss_str.split(':')
-    return(((int(hh_str) * 3600) + (int(mm_str) * 60) + int(ss_str)) * 1000 + int(ms_str))
+
+    return ((int(hh_str) * 3600) + (int(mm_str) * 60) + int(ss_str)) * 1000 + \
+        int(ms_str)
+
 
 
 def ms_to_str(time_in_ms):
-    hh = int(time_in_ms / 3600000)
+    """
+        time_in_ms -- Time in millisecond
+    """
+    hour = int(time_in_ms / 3600000)
     time_in_ms = time_in_ms % 3600000
-    mm , ss, ms = int(time_in_ms / 60000) , int(time_in_ms % 60000 / 1000), time_in_ms % 1000
-    return('{:0=2}:{:0=2}:{:0=2},{:0=3}'.format(hh, mm, ss, ms))
 
-def check_srt_extension(input_srt_file):
-    if input_srt_file.endswith('.srt'):
+    minute, second, millisecond = int(time_in_ms / 60000), \
+        int(time_in_ms % 60000 / 1000), time_in_ms % 1000
+
+    return '{:0=2}:{:0=2}:{:0=2},{:0=3}'.format(hour, minute, second, \
+        millisecond)
+
+
+
+def check_srt_extension(input_file):
+    """
+        input_file -- Input file to be checked for .srt extension
+    """
+    if input_file.endswith('.srt'):
         return True
     else:
         print('Error: File needs to have .srt extension. Check the input file.')
         return False
 
+
+
 def check_time_str_format(time_str):
-    is_time_str = re.match(r'\d\d:\d\d:\d\d,\d\d\d', time_str)
+    """
+        time_str -- Time string in (hh:mm:ss,ms) format
+    """
+    is_time_str = re.match(r'\d{2}:\d{2}:\d{2},\d{3}', time_str)
     if is_time_str != None:
         return True
     else:
-        print('Error: Time string must be in the format of hh:mm:ss,ms (01:23:45,678).')
+        print('Error: Time string must be in the format of hh:mm:ss,ms' + \
+            '(01:23:45,678).')
         return False
-
