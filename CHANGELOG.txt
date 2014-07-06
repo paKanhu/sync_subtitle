@@ -1,3 +1,13 @@
+sync_subtitle Version: 2.1.0
+-----------------------------
+* Added sync_after_index()
+* Added sync_before_index()
+* Added sync_between_indexes()
+* Changed 'input_srt_file' argument to 'input_file'
+* Changed 'output_srt_file' argument to 'output_file'
+* Fixed delay and hasten logic
+* Refactoring
+
 sync_subtitle Version: 2.0.0
 -----------------------------
 * Changed sync_subtitle() to sync()

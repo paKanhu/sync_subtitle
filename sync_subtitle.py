@@ -22,8 +22,6 @@ sync_between_indexes         -- Synchronizes the subtitles occuring between the
 """
 
 """
-The MIT License (MIT)
-
 Copyright (c) 2014 Prasannajit Acharya - Kanhu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
